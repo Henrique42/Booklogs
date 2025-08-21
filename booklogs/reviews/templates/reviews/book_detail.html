@@ -1,5 +1,7 @@
 {% extends 'reviews/base.html' %}
-
+{% block title %}
+      {{ book.title }} | Booklogs
+{% endblock %}
 {% block content %}
       <br>
       <h3>Book Details</h3>
@@ -12,7 +14,7 @@
       <br>
       {% if not reviews %}
             <hr>
-            <h3>Be the first one to write a review.</h3>
+            <h4 class="text-muted">Be the first one to write a review.</h4>
       {% else %}
             <span class="text-info">Overall Rating: </span><span class="badge badge-primary badge-pill">{{ book_rating }}</span>
             <br>
