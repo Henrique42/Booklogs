@@ -1,6 +1,10 @@
 {% extends 'reviews/base.html' %}
 
 {% block content %}
+<br>
+<h2> Book List </h2>
+<hr>
+
 <ul class="list-group">
   {% for item in book_list %}
   <li class="list-group-item">
@@ -18,7 +22,8 @@
       <span class="text-secondary">Provide a rating and write the first review for this book.</span>
       <br>
       {% endif %}
-      <a class="btn btn-primary btn-sm active" role="button" aria-pressed="true" href="/book/{{ item.book.id }}/">Reviews</a></li>
+      <button class="btn btn-primary" onclick="location.href = '/books/{{ item.book.id }}/'">Reviews</button>
+    </li>
   </li>
   {% endfor %}
 </ul>

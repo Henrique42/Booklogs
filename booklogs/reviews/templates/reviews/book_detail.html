@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
       <br>
-      <h3>Book Details</h3>
+      <h2>Book Details</h2>
       <hr>
       <span class="text-info">Title: </span> <span>{{ book.title }}</span>
       <br>
@@ -33,8 +33,10 @@
                         <br>
                         <span class="text-info">Creator: </span><span>{{ review.creator.username }}</span>
                         <br>
+                        <a href="{% url 'review_edit' book.pk review.pk %}">Edit Review</a>
                   </li>
             {% endfor %}
             </ul>
       {% endif %}
+      <a class="btn btn-primary" href="{% url 'review_create' book.pk %}">Add Review</a>
 {% endblock %}
