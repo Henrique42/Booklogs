@@ -18,6 +18,9 @@ class Book(models.Model):
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)  # Cascade delete if publisher deleted
     contributors = models.ManyToManyField('Contributor', through="BookContributor")  # Many-to-many via join table
 
+    cover = models.ImageField(null=True, blank=True, upload_to="book_covers/")
+    sample = models.FileField(null=True, blank=True, upload_to="book_samples/")
+
     def __str__(self):
         return f"{self.title} ({self.isbn})"  # Display title + ISBN
 

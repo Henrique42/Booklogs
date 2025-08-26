@@ -1,5 +1,5 @@
 from django import forms
-from .models import Publisher, Review
+from .models import Book, Publisher, Review
 
 # Book search form
 class SearchForm(forms.Form):
@@ -27,3 +27,9 @@ class ReviewForm(forms.ModelForm):
         fields = ("content", "rating", "creator")
 
     rating = forms.IntegerField(min_value=0, max_value=5)
+
+
+class BookMediaForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ["cover", "sample"]
