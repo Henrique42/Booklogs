@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test, permission_required, login_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
@@ -12,33 +14,46 @@ from io import BytesIO
 from PIL import Image
 from django.core.files.images import ImageFile
 
+#Reference to the instance template
 instance_page = "reviews/instance-form.html"
 
 # Homepage
 def index(request):
-    return render(request, "base.html")
+    return render(request, "base.html")    
+
+# Book search additional action
+def search_books_by_contributor(search):
+    """Helper function to search books by contributor name"""
+    contributors = Contributor.objects.filter(
+        Q(first_names__icontains=search) | Q(last_names__icontains=search)
+    )
+    books = set()
+    for contributor in contributors:
+        books.update(contributor.book_set.all())
+    return books
 
 # Book search action
 def book_search(request):
     search_text = request.GET.get("search", "")
+    search_history = request.session.get("search_history", [])
     form = SearchForm(request.GET)
     books = set()
 
     if form.is_valid() and form.cleaned_data["search"]:
         search = form.cleaned_data["search"]
-        
-        # The default is to search by title
         search_in = form.cleaned_data.get("search_in") or "title"
+        
         if search_in == "title":
             books = Book.objects.filter(title__icontains=search)
         else:
-            contributors = Contributor.objects.filter(
-                Q(first_names__icontains=search) | Q(last_names__icontains=search)
-            )
+            books = search_books_by_contributor(search)
 
-            for contributor in contributors:
-                for book in contributor.book_set.all():
-                    books.add(book)
+        if request.user.is_authenticated:
+            search_history.append([search_in, search])
+            request.session["search_history"] = search_history
+    elif search_history:
+        initial = {"search": search_history[-1][1], "search_in": search_history[-1][0]}
+        form = SearchForm(initial=initial)
 
     return render(
         request,
@@ -70,18 +85,43 @@ def book_list(request):
     context = {"book_list": book_list}
     return render(request, "reviews/book_list.html", context)
 
+
+#Function to add the "last x books" to the session
+def last_x_books(request, string, item, max_lenght):
+    item_list = request.session.get(string, [])
+
+    if item in item_list:
+        item_list.pop(item_list.index(item))
+
+    item_list.insert(0, item)
+    item_list = item_list[:max_lenght]
+    request.session[string] = item_list
+
 # Renders the book details page
 def book_detail(request, pk):
     book = get_object_or_404(Book, pk=pk)
     reviews = book.review_set.all()
+
     if reviews:
         book_rating = average_rating([review.rating for review in reviews])
         context = {"book": book, "book_rating": book_rating, "reviews": reviews}
     else:
         context = {"book": book, "book_rating": None, "reviews": None}
+    
+    #Adds the "last 10 viewed books" information to the session
+    if request.user.is_authenticated:
+        last_x_books(request, "viewed_books", [book.id, book.title], 10)
+    
     return render(request, "reviews/book_detail.html", context)
 
+
+#Verifies if the user is from the staff group
+def is_staff_user(user):
+    return user.is_staff
+
 # Deal with publishers' creation and updates
+#@permission_required('edit_publisher')
+@user_passes_test(is_staff_user)
 def publisher_edit(request, pk=None):
     if pk is not None:
         publisher = get_object_or_404(Publisher, pk=pk)
@@ -113,12 +153,16 @@ def publisher_edit(request, pk=None):
     )
 
 # Deal with reviews' creation and updates
+@login_required
 def review_edit(request, book_pk, review_pk=None):
     # Get the book which the review refers to
     book = get_object_or_404(Book, pk=book_pk)
 
     if review_pk is not None:
         review = get_object_or_404(Review, book_id=book_pk, pk=review_pk)
+        user = request.user
+        if not user.is_staff and review.creator.id != user.id:
+            raise PermissionDenied
     else:
         review = None
 
@@ -156,6 +200,7 @@ def review_edit(request, book_pk, review_pk=None):
 
 
 # Book covers and samples upload
+@login_required
 def book_media(request, pk):
     book = get_object_or_404(Book, pk=pk)
 
