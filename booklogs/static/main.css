@@ -11,6 +11,13 @@ font-family: 'Libre Baskerville', serif;
 .navbar {
     min-height: 100px;
     font-size: 25px;
+    background-color: #ffc61a !important;
+}
+
+#btn-search{
+    background-color: #372a28;
+    color: #ffc61a;
+    border-color: #ffc61a;
 }
 
 .navbar-brand {
