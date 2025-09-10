@@ -29,6 +29,8 @@ urlpatterns = [
     path("", reviews.views.index),
     path("book-search/", reviews.views.book_search, name="book_search"),
     path("", include("reviews.urls")),
+    #Includes the urls for the book management app
+    path('book_management/', include('book_management.urls')),
 ]
 
 if settings.DEBUG:
