@@ -7,7 +7,7 @@ urlpatterns = [
     path('entry_success', FormSuccessView.as_view(), name='form_success'),
     #Optional CRUD urls
     path('book_record_create', BookCreateView.as_view(), name='book_create'),
-    path('book_record_detail/<int:pk>', BookRecordDetailView.as_view(), name='book_detail'),
+    path('book_record_detail/<int:pk>', BookRecordDetailView.as_view(), name='book_view'),
     path('book_record_update/<int:pk>', BookUpdateView.as_view(), name='book_update'),
     path('book_record_delete/<int:pk>', BookDeleteView.as_view(), name='book_delete')
 ]

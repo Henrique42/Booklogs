@@ -13,15 +13,15 @@
 .flexrow > div { flex: 1; }
 
 .infocell {
-    border: 2px solid green;
+    border: 2px solid purple;
     border-radius: 5px;
-    background-color: azure;
+    background-color: lightgoldenrodyellow;
     padding: 5px;
     margin: 20px 5px 5px 5px;
 }
 
 .infocell h3{
-    color: green;
+    color: purple;
 }
 
 .infocell p, h3{
@@ -62,5 +62,12 @@
       </p>
     </div>
   </div>
+  
+  <hr>
+
+  {% autoescape off %}
+    <h3>Books Read per Month</h3>
+    {{ books_read_plot }}
+  {% endautoescape %}
 
 {% endblock %}

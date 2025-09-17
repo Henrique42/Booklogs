@@ -4,6 +4,7 @@ from django.conf.urls.static import static
 from django.contrib import admin, auth
 from django.urls import include, path
 
+import booklogs.views
 import reviews.views
 
 # Website urls
@@ -23,6 +24,8 @@ urlpatterns = [
         auth.views.PasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
+    # Export read books by the current user
+    path('accounts/profile/reading_history', booklogs.views.reading_history, name='reading_history'),
     #Includes the profile view
     path("accounts/profile/", profile, name="profile"),
     #Includes the urls for the review app
